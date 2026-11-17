@@ -28,8 +28,12 @@ function App() {
             path="/allstudents/:studentid"
             element={<SingleStudent />}
           />
+          <Route
+            exact
+            path="/allstudents/:studentid/edit"
+            element={<StudentUpdate />}
+          />
           <Route exact path="/attendance" element={<Attendance />} />
-          <Route exact path="/update" element={<StudentUpdate />} />
         </Routes>
       </div>
     </div>

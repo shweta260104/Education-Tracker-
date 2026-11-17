@@ -7,66 +7,55 @@ import {
   Metric,
   Text,
 } from "@tremor/react";
-
-const chartdata = [
-  {
-    class: "Nursery",
-    "Number of boys": 21,
-    "Number of girls": 18,
-  },
-  {
-    class: "LKG",
-    "Number of boys": 14,
-    "Number of girls": 11,
-  },
-  {
-    class: "UKG",
-    "Number of boys": 9,
-    "Number of girls": 15,
-  },
-  {
-    class: "Class 1",
-    "Number of boys": 19,
-    "Number of girls": 24,
-  },
-  {
-    class: "Class 2",
-    "Number of boys": 26,
-    "Number of girls": 8,
-  },
-  {
-    class: "Class 3",
-    "Number of boys": 10,
-    "Number of girls": 12,
-  },
-  {
-    class: "Class 4",
-    "Number of boys": 14,
-    "Number of girls": 12,
-  },
-  {
-    class: "Class 5",
-    "Number of boys": 15,
-    "Number of girls": 9,
-  },
-];
-
-const kpiData = [
-  {
-    title: "Student Strength",
-    metric: "114",
-  },
-  {
-    title: "No. of Girls",
-    metric: "54",
-  },
-  {
-    title: "No. of Boys",
-    metric: "60",
-  },
-];
+import { useMemo, useState } from "react";
+import { getStudents } from "../../data/studentStorage";
 
 function Dashboard() {
+  const [students] = useState(getStudents);
+  const kpiData = [
+    { title: "Student Strength", metric: String(students.length) },
+    {
+      title: "No. of Girls",
+      metric: String(
+        students.filter((student) => student.studentSex.toLowerCase() === "female")
+          .length,
+      ),
+    },
+    {
+      title: "No. of Boys",
+      metric: String(
+        students.filter((student) => student.studentSex.toLowerCase() === "male")
+          .length,
+      ),
+    },
+  ];
+  const chartdata = useMemo(() => {
+    const classCounts = new Map();
+
+    students.forEach((student) => {
+      const className = /^\d+$/.test(student.classEnrolled)
+        ? `Class ${student.classEnrolled}`
+        : student.classEnrolled;
+      const counts = classCounts.get(className) || {
+        class: className,
+        "Number of boys": 0,
+        "Number of girls": 0,
+      };
+
+      if (student.studentSex.toLowerCase() === "male") {
+        counts["Number of boys"] += 1;
+      } else if (student.studentSex.toLowerCase() === "female") {
+        counts["Number of girls"] += 1;
+      }
+
+      classCounts.set(className, counts);
+    });
+
+    return [...classCounts.values()].sort((a, b) =>
+      a.class.localeCompare(b.class, undefined, { numeric: true }),
+    );
+  }, [students]);
+
   return (
     <div className="h-full w-full bg-gray-50 px-3 py-5 xl:px-20 xl:py-12">
       <header className="ie-na-header flex w-full justify-between">

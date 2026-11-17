@@ -1,11 +1,21 @@
-import studentData from "../../data/allStudents.json";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import { useParams } from "react-router-dom";
-const singleStudent = studentData[0];
+import { getStudents } from "../../data/studentStorage";
 
 function SingleStudent() {
   const params = useParams();
-  console.log(params);
+  const singleStudent = getStudents().find(
+    (student) => student.studentId.toLowerCase() === params.studentid,
+  );
+
+  if (!singleStudent) {
+    return (
+      <div className="min-h-screen bg-gray-50 px-3 py-12 text-center text-gray-700 xl:px-20">
+        Student record not found.
+      </div>
+    );
+  }
+
   return (
     <div className="h-full w-full bg-gray-50 px-3 py-5 xl:px-20 xl:py-12">
       <header className="ie-as-header flex w-full justify-between">

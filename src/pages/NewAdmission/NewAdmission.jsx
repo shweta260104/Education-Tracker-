@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { getNextStudentId, saveStudent } from "../../data/studentStorage";
 import AcademicDetailsForm from "./sc_forms/AcademicDetailsForm";
 import GuardianDetailsForm from "./sc_forms/GuardianDetailsForm";
 import IndividualDetailsForm from "./sc_forms/IndividualDetailsForm";
@@ -10,7 +11,7 @@ function UpdateSpan() {
 }
 
 function NewAdmission() {
-  const [newStudent, setNewStudent] = useState({
+  const createEmptyStudent = () => ({
     studentFirstName: "",
     studentMiddleLastName: "",
     studentDateOfBirth: "",
@@ -25,7 +26,7 @@ function NewAdmission() {
     addressCity: "",
     addressState: "",
     addressZipCode: "",
-    studentId: "SVPSAS230001",
+    studentId: getNextStudentId(),
     dateOfAdmission: "",
     classEnrolled: "",
     sectionAssigned: "",
@@ -36,38 +37,33 @@ function NewAdmission() {
     previousSchoolName: "",
     previousSchoolAddress: "",
   });
+  const [newStudent, setNewStudent] = useState(createEmptyStudent);
+  const [saveError, setSaveError] = useState("");
+  const [savedStudentId, setSavedStudentId] = useState("");
 
   const submitButtonRef = useRef();
 
   const submitFormHandler = (event) => {
     event.preventDefault();
-    alert("Form Submitted");
-    setNewStudent({
-      studentFirstName: "",
-      studentMiddleLastName: "",
-      studentDateOfBirth: "",
-      studentReligion: "",
-      studentCaste: "",
-      studentEmail: "",
-      studentSex: "",
-      studentBloodGroup: "",
-      fatherFullName: "",
-      motherFullName: "",
-      addressStreet: "",
-      addressCity: "",
-      addressState: "",
-      addressZipCode: "",
-      studentId: "SVPSAS230001",
-      dateOfAdmission: "",
-      classEnrolled: "",
-      sectionAssigned: "",
-      guardianFullName: "",
-      guardianEmail: "",
-      guardianPhone: "",
-      guardianWhatsApp: "",
-      previousSchoolName: "",
-      previousSchoolAddress: "",
-    });
+
+    try {
+      const studentToSave = {
+        ...newStudent,
+        studentId: getNextStudentId(),
+      };
+      saveStudent(studentToSave);
+      setSavedStudentId(studentToSave.studentId);
+      setSaveError("");
+      setNewStudent(createEmptyStudent());
+    } catch (error) {
+      console.error("Could not save the new admission.", error);
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Could not save this admission. Please try again.",
+      );
+      setSavedStudentId("");
+    }
   };
 
   const submitAlt = () => {
@@ -93,6 +89,31 @@ function NewAdmission() {
           </Link>
         </div>
       </header>
+      <p className="mt-2 text-sm text-gray-500">
+        Admissions are saved in this browser on this device.
+      </p>
+      {savedStudentId && (
+        <div
+          className="mt-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          role="status"
+        >
+          Admission saved successfully with student ID {savedStudentId}.{" "}
+          <Link
+            className="font-semibold underline"
+            to="/allstudents"
+          >
+            View all students
+          </Link>
+        </div>
+      )}
+      {saveError && (
+        <div
+          className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          role="alert"
+        >
+          {saveError}
+        </div>
+      )}
       <div className="ie-na-content mt-5 flex w-full flex-col gap-10 2xl:flex-row">
         <form
           onSubmit={submitFormHandler}

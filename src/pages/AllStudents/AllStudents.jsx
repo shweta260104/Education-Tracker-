@@ -1,7 +1,5 @@
-import studentData from "../../data/allStudents.json";
 import {
   Badge,
-  Button,
   Card,
   Table,
   TableRow,
@@ -14,8 +12,10 @@ import {
 } from "@tremor/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { getStudents } from "../../data/studentStorage";
 
 const AllStudents = () => {
+  const [studentData] = useState(getStudents);
   const [selectedNames, setSelectedNames] = useState([]);
 
   const isStudentSelected = (student) =>
@@ -90,7 +90,7 @@ const AllStudents = () => {
                         View
                       </Link>
                       <Link
-                        to="#"
+                        to={`/allstudents/${item.studentId.toLowerCase()}/edit`}
                         className="ml-3 rounded-full bg-orange-200 py-[3px] px-3 text-xs text-orange-900 transition-all hover:bg-orange-100"
                       >
                         Edit
